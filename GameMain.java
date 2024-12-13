@@ -4,7 +4,9 @@ import javax.swing.*;
 
 
 
+
 public class GameMain extends JPanel implements MouseListener{
+	private static final long serialVersionUID = 1L;
 	//Constants for game 
 	// number of ROWS by COLS cell constants 
 	public static final int ROWS = 3;     
