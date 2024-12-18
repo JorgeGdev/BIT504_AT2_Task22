@@ -5,27 +5,27 @@ import javax.swing.*;
 public class GameMain extends JPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
 
-    // Constants for game
+    // Constants for the game
     public static final int ROWS = 3; // Number of rows
     public static final int COLS = 3; // Number of columns
     public static final String TITLE = "Tic Tac Toe - Modern Style";
 
     // Dimensions
-    public static final int CELL_SIZE = 100; // Cell width and height
-    public static final int CANVAS_WIDTH = CELL_SIZE * COLS; // Width of the drawing canvas
-    public static final int CANVAS_HEIGHT = CELL_SIZE * ROWS; // Height of the drawing canvas
+    public static final int CELL_SIZE = 100; // Width and height of each cell
+    public static final int CANVAS_WIDTH = CELL_SIZE * COLS; // Total canvas width
+    public static final int CANVAS_HEIGHT = CELL_SIZE * ROWS; // Total canvas height
     public static final int CELL_PADDING = CELL_SIZE / 6; // Padding within a cell
-    public static final int SYMBOL_SIZE = CELL_SIZE - CELL_PADDING * 2; // Size of X or O
-    public static final int SYMBOL_STROKE_WIDTH = 8; // Stroke width for X and O
+    public static final int SYMBOL_SIZE = CELL_SIZE - CELL_PADDING * 2; // Symbol size
+    public static final int SYMBOL_STROKE_WIDTH = 8; // Line thickness for X and O
 
     private Board board; // The game board
-    private GameState currentState; // Current state of the game (Playing, Draw, etc.)
-    private Player currentPlayer; // Current player (Cross or Nought)
-    private JLabel statusBar; // For displaying status messages
+    private GameState currentState; // Current state of the game
+    private Player currentPlayer; // Current player (X or O)
+    private JLabel statusBar; // Status bar for displaying game messages
 
-    /** Constructor to setup the UI and game components */
+    /** Constructor to set up the UI and initialize the game */
     public GameMain() {
-        // Add mouse listener to capture clicks
+        // Add mouse listener to capture mouse clicks
         this.addMouseListener(this);
 
         // Initialize the status bar
@@ -36,17 +36,17 @@ public class GameMain extends JPanel implements MouseListener {
         statusBar.setBackground(Color.BLACK);
         statusBar.setForeground(Color.CYAN);
 
-        // Set layout and add the status bar
+        // Set layout and add the status bar at the bottom
         setLayout(new BorderLayout());
         add(statusBar, BorderLayout.SOUTH);
         setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT + 30));
 
-        // Initialize the game board
+        // Initialize the game board with parameters
         board = new Board(ROWS, COLS, CELL_SIZE);
-        initGame();
+        initGame(); // Start the game
     }
 
-    /** Main method to launch the application */
+    /** Main method to launch the game window */
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame(TITLE);
@@ -58,13 +58,13 @@ public class GameMain extends JPanel implements MouseListener {
         });
     }
 
-    /** Custom painting codes for the JPanel */
+    /** Paint the game board and update the status bar */
     public void paintComponent(Graphics g) {
         super.paintComponent(g); // Paint the background
-        setBackground(Color.BLACK); // Set background color
+        setBackground(Color.BLACK); // Modern black background
         board.paint(g); // Ask the board to paint itself
 
-        // Display the game status
+        // Update the status bar based on game state
         if (currentState == GameState.Playing) {
             statusBar.setForeground(Color.CYAN);
             statusBar.setText(currentPlayer == Player.Cross ? "X's Turn" : "O's Turn");
@@ -80,63 +80,52 @@ public class GameMain extends JPanel implements MouseListener {
         }
     }
 
-    /** Initialize the game */
+    /** Initialize the game state and clear the board */
     public void initGame() {
-        // Clear the board and reset the game state
+        // Clear all cells and reset the game state
         for (int row = 0; row < ROWS; ++row) {
             for (int col = 0; col < COLS; ++col) {
                 board.cells[row][col].content = Player.Empty;
             }
         }
-        currentState = GameState.Playing; // Set the game state to Playing
+        currentState = GameState.Playing; // Set game state to Playing
         currentPlayer = Player.Cross; // X starts first
         repaint(); // Refresh the UI
     }
 
     /** Update the game state after a player's move */
     public void updateGame(Player thePlayer, int row, int col) {
+        // Check if the player has won
         if (board.hasWon(thePlayer, row, col)) {
             currentState = (thePlayer == Player.Cross) ? GameState.Cross_won : GameState.Nought_won;
         } else if (board.isDraw()) {
-            currentState = GameState.Draw;
+            currentState = GameState.Draw; // Check for a draw
         }
-        repaint(); // Refresh the UI after state change
+        repaint(); // Refresh the UI after changes
     }
 
-    /** Handle mouse click events */
+    /** Handle mouse click events for player moves */
     public void mouseClicked(MouseEvent e) {
-        // Get the coordinates of the click
         int mouseX = e.getX();
         int mouseY = e.getY();
-        // Determine which cell was clicked
         int rowSelected = mouseY / CELL_SIZE;
         int colSelected = mouseX / CELL_SIZE;
 
+        // Process the click if the game is still ongoing
         if (currentState == GameState.Playing) {
-            // Ensure valid click and cell is empty
             if (rowSelected >= 0 && rowSelected < ROWS && colSelected >= 0 && colSelected < COLS &&
                 board.cells[rowSelected][colSelected].content == Player.Empty) {
-                // Place the current player's move
                 board.cells[rowSelected][colSelected].content = currentPlayer;
-
-                // Update the game state after the move
-                updateGame(currentPlayer, rowSelected, colSelected);
-
-                // Switch to the next player
-                currentPlayer = (currentPlayer == Player.Cross) ? Player.Nought : Player.Cross;
+                updateGame(currentPlayer, rowSelected, colSelected); // Update game state
+                currentPlayer = (currentPlayer == Player.Cross) ? Player.Nought : Player.Cross; // Switch players
             }
         } else {
-            // Reset the game if it has ended
-            initGame();
+            initGame(); // Restart the game if it ended
         }
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {}
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-    @Override
-    public void mouseExited(MouseEvent e) {}
+    @Override public void mousePressed(MouseEvent e) {}
+    @Override public void mouseReleased(MouseEvent e) {}
+    @Override public void mouseEntered(MouseEvent e) {}
+    @Override public void mouseExited(MouseEvent e) {}
 }
